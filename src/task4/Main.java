@@ -6,7 +6,7 @@ public class Main {
 
     public static class Producer implements Runnable {
         public void run() {
-            for (int i = 0; i < 1000000; i++) {
+            for (int i = 0; i < 100; i++) {
                 try {
                     buffer.add(i);
 
@@ -37,7 +37,7 @@ public class Main {
             while (buffer.isOpen) {
                 try {
                     int i = buffer.remove();
-                    // System.out.println(i + " removed from buffer");
+                    System.out.println(i + " removed from buffer");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

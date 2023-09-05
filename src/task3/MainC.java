@@ -12,7 +12,6 @@ public class MainC {
                 try {
                     for (int i = 0; i < 1_000_000; i++) {
                         sharedInt++;
-                        System.out.println(sharedInt);
                     }
 
                 } finally {
