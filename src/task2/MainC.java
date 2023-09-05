@@ -3,6 +3,7 @@ package task2;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 
 public class MainC {
 
@@ -43,25 +44,13 @@ public class MainC {
         return endTime - startTime;
     }
 
-    public static void write(String filelocation, long[] array) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(filelocation));
-
-        for (int i = 0; i < array.length; i++) {
-            writer.write(array[i] + ",");
-        }
-        writer.write(";");
-        writer.flush();
-        writer.close();
-
-    }
-
     public static void main(String[] args) {
 
         int n = 1;
         int X = 10;
         int Y = 20;
-        long[] avg_exec = new long[Y];
-        long[] st_dev = new long[Y];
+        long mean;
+        long st_dev;
 
         for (int k = 0; k < 6; k++) {
 
@@ -83,23 +72,29 @@ public class MainC {
             n = 2 * n;
 
             // MEAN
-            long mean = total / results.length;
-
-            avg_exec[k] = mean;
+            mean = total / results.length;
 
             // ST DEV
             long sum = 0;
             for (long res : results) {
                 sum += Math.pow(res - mean, 2);
             }
-            st_dev[k] = sum / results.length;
+            st_dev = sum / results.length;
+
+            try {
+
+                BufferedWriter writer = new BufferedWriter(new FileWriter("data/results.dat", true));
+                writer.write(n + " ");
+                writer.write(mean + " ");
+                writer.write(st_dev + " ");
+                writer.newLine();
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
 
-
-    // Write data to file
-    Buffered Writer 
-
     }
-
 }
