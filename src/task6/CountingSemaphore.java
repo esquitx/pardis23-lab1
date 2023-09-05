@@ -18,30 +18,30 @@ public class CountingSemaphore {
 
     }
 
-    synchronized void s_wait() throws InterruptedException {
+    public synchronized void s_wait() throws InterruptedException {
 
-        lock.lock();
         try {
+
+            if (this.resource_count <= 0)
+                wait();
+
             resource_count--;
-            if (resource_count < 0) {
-                availability.await();
-            }
-        } finally {
-            lock.unlock();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
 
     synchronized void signal() throws InterruptedException {
 
-        lock.lock();
         try {
+
+            if (resource_count == 0)
+                notify();
             resource_count++;
-            if (resource_count - 1 < 0) {
-                availability.signal();
-            }
-        } finally {
-            lock.unlock();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 }

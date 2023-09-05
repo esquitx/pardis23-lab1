@@ -1,8 +1,8 @@
 package task4;
 
 public class Main {
-
-    public static Buffer buffer = new Buffer(100);
+    int N = 100;
+    public static Buffer buffer = new Buffer(N));
 
     public static class Producer implements Runnable {
         public void run() {
@@ -46,7 +46,7 @@ public class Main {
             return;
         }
 
-        public static void main(String[] args) {
+        public static void main(int numThreads, String[] args) {
             Thread producer = new Thread(new Producer());
             Thread consumer = new Thread(new Consumer());
             producer.start();

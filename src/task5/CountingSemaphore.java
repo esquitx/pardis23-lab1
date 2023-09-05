@@ -6,13 +6,15 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CountingSemaphore {
 
     volatile int resource_count;
-    final int resources_available;
     ReentrantLock lock = new ReentrantLock();
     Condition availability = lock.newCondition();
 
+    CountingSemaphore() {
+        this.resource_count = 5;
+    }
+
     CountingSemaphore(int resources) {
         this.resource_count = resources;
-        this.resources_available = resources;
 
     }
 
@@ -34,9 +36,7 @@ public class CountingSemaphore {
 
         lock.lock();
         try {
-            if (resource_count < resources_available) {
-                resource_count++;
-            }
+            resource_count++;
             if (resource_count - 1 < 0) {
                 availability.signal();
             }

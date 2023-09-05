@@ -3,45 +3,34 @@ package task3;
 public class MainC {
 
     private static volatile int sharedInt = 0;
-    private static volatile boolean done = false;
-
-    synchronized public void increment() {
-
-        try {
-            for (int i = 0; i < 1000000; i++) {
-                sharedInt++;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    synchronized void print() {
-
-    };
+    private static final Object lock = new Object();
 
     public static void main(String[] args) {
 
+        Thread incrementingThread = new Thread(() -> {
+            synchronized (lock) {
+                try {
+                    for (int i = 0; i < 1_000_000; i++) {
+                        sharedInt++;
+                        System.out.println(sharedInt);
+                    }
 
-
-        Thread incrementingThread = new Thread(synchronized () ->  {
-
-            try {
-
-                 for (int i = 0; i < 1000000; i++) {
-                sharedInt++;
-
-            } finally
+                } finally {
+                    lock.notify();
+                }
             }
-            done = true;
         });
 
         Thread printingThread = new Thread(() -> {
 
-            while (!done) {
+            synchronized (lock) {
+                try {
+                    lock.wait();
+                    System.out.println(sharedInt);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            System.out.println(sharedInt);
 
         });
 
