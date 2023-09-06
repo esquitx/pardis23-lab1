@@ -6,42 +6,43 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CountingSemaphore {
 
     volatile int resource_count;
-    ReentrantLock lock = new ReentrantLock();
-    Condition availability = lock.newCondition();
+    private ReentrantLock lock = new ReentrantLock();
+    private Condition availability = lock.newCondition();
 
     CountingSemaphore() {
         this.resource_count = 5;
     }
 
-    CountingSemaphore(int resources) {
-        this.resource_count = resources;
+    CountingSemaphore(int resource_count) {
+        this.resource_count = resource_count;
 
     }
 
-    public synchronized void s_wait() throws InterruptedException {
+    void s_wait() throws InterruptedException {
 
+        lock.lock();
         try {
-
-            if (this.resource_count <= 0)
-                wait();
-
+            while (resource_count == 0) {
+                availability.await();
+            }
             resource_count--;
-        } catch (Exception e) {
-            e.printStackTrace();
+            // System.out.println("Resources available: " + resource_count);
+
+        } finally {
+            lock.unlock();
         }
 
     }
 
-    synchronized void signal() throws InterruptedException {
+    void signal() throws InterruptedException {
 
+        lock.lock();
         try {
-
-            if (resource_count == 0)
-                notify();
             resource_count++;
-        } catch (Exception e) {
-            e.printStackTrace();
+            // System.out.println("Resources available: " + resource_count);
+            availability.signal();
+        } finally {
+            lock.unlock();
         }
-
     }
 }
