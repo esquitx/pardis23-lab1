@@ -6,7 +6,8 @@ import java.io.IOException;
 
 public class MainC {
 
-    public static volatile int counter = 0;
+    private static volatile int counter = 0;
+    private static boolean isPDC = false;
 
     public static class MyIncrementer implements Runnable {
 
@@ -21,16 +22,16 @@ public class MainC {
     static long run_experiment(int n) {
 
         long startTime = System.nanoTime();
-        // START JOB
 
+        // START JOB
         Thread[] threads = new Thread[n];
         for (int i = 0; i < n; i++) {
             threads[i] = new Thread(new MyIncrementer());
             threads[i].start();
         }
 
+        // JOIN JOBS
         for (int i = 0; i < n; i++) {
-            // Try except block to avoid InterruptedException with join method
             try {
                 threads[i].join();
             } catch (InterruptedException e) {
@@ -43,7 +44,29 @@ public class MainC {
         return endTime - startTime;
     }
 
+    static void writer(boolean isPDC, int n, long mean) throws IOException {
+
+        if (isPDC) {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("data/resultsPDC.dat", true));
+            writer.write(n + " ");
+            writer.write(mean + " ");
+            writer.newLine();
+            writer.flush();
+            writer.close();
+        } else {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("data/resultslocal.dat", true));
+            writer.write(n + " ");
+            writer.write(mean + " ");
+            writer.newLine();
+            writer.flush();
+            writer.close();
+
+        }
+    }
+
     public static void main(String[] args) {
+
+        isPDC = Boolean.parseBoolean(args[0]);
 
         int n = 1;
         int X = 10;
@@ -73,6 +96,8 @@ public class MainC {
             // MEAN
             mean = total / results.length;
 
+            // System.out.println("" + mean);
+
             // ST DEV
             long sum = 0;
             for (long res : results) {
@@ -80,15 +105,10 @@ public class MainC {
             }
             st_dev = sum / results.length;
 
-            try {
+            // System.out.println("" + stdev);
 
-                BufferedWriter writer = new BufferedWriter(new FileWriter("data/results.dat", true));
-                writer.write(n + " ");
-                writer.write(mean + " ");
-                writer.write(st_dev + " ");
-                writer.newLine();
-                writer.flush();
-                writer.close();
+            try {
+                writer(isPDC, n, mean);
             } catch (IOException e) {
                 e.printStackTrace();
             }

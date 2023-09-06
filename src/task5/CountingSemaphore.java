@@ -22,11 +22,13 @@ public class CountingSemaphore {
 
         lock.lock();
         try {
-            resource_count--;
-            if (resource_count < 0) {
+            this.resource_count--;
+            if (this.resource_count < 0) {
+                System.out.println("Waiting...");
                 availability.await();
             }
         } finally {
+            System.out.println("Resources available: " + resource_count);
             lock.unlock();
         }
 
@@ -36,9 +38,11 @@ public class CountingSemaphore {
 
         lock.lock();
         try {
-            resource_count++;
-            if (resource_count - 1 < 0) {
+            this.resource_count++;
+            System.out.println("Resources available: " + this.resource_count);
+            if (this.resource_count > 0) {
                 availability.signal();
+                System.out.println("Signalled");
             }
         } finally {
             lock.unlock();

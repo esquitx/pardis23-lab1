@@ -51,7 +51,7 @@ public class Main {
 
         buffer = new Buffer(Integer.parseInt(args[0]));
 
-        System.out.println("Buffer started with " + Integer.parseInt(args[0]) + " threads");
+        System.out.println("Buffer started with " + Integer.parseInt(args[0]) + " spaces");
 
         Thread producer = new Thread(new Producer());
         Thread consumer = new Thread(new Consumer());

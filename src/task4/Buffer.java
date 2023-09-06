@@ -1,15 +1,14 @@
 package task4;
 
 // PACKAGES
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Condition;
 
 public class Buffer {
     int head, tail;
     boolean isOpen;
-    Lock lock;
-    Condition notFull, notEmpty, notOpen;
+    ReentrantLock lock;
+    Condition notFull, notEmpty;
     int[] storage;
 
     Buffer(int N) {
@@ -32,9 +31,12 @@ public class Buffer {
         // Queing code
         lock.lock();
         try {
+
+            // Checks if full, waits until it is not
             if (tail - head == storage.length) {
                 notFull.await();
             }
+            // When not full, add integer and update tail
             storage[tail % storage.length] = i;
             tail++;
             notEmpty.signal();
@@ -47,8 +49,12 @@ public class Buffer {
 
         lock.lock();
         try {
-            if (tail == head)
+
+            // Checks if empty, waits until it is not
+            if (tail == head) {
                 notEmpty.await();
+            }
+            // When not empty, retrieve integer, update head
             int i = storage[head % storage.length];
             head++;
             notFull.signal();
@@ -59,6 +65,8 @@ public class Buffer {
     }
 
     void close() throws ClosedException {
+
+        // Closes the storage
         if (!isOpen) {
             isOpen = false;
         } else {

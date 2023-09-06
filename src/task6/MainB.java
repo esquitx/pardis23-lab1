@@ -38,14 +38,14 @@ public class MainB {
 
             // First : pick forks (left, then right)
 
-            leftFork.s_wait();
-            System.out
-                    .println(Thread.currentThread().getName() + " has the left fork");
-
-            rightFork.s_wait();
-            System.out
-                    .println(Thread.currentThread().getName() + " has the right fork");
-
+            synchronized (leftFork) {
+                System.out
+                        .println(Thread.currentThread().getName() + " has the left fork");
+            }
+            synchronized (rightFork) {
+                System.out
+                        .println(Thread.currentThread().getName() + " has the right fork");
+            }
             // Second : EAT!
             System.out.println(Thread.currentThread().getName() + " is now eating!");
 
@@ -56,11 +56,9 @@ public class MainB {
                     .println(Thread.currentThread().getName() + " is now finished eating.");
             System.out
                     .println(Thread.currentThread().getName() + " is leaving the right fork");
-            rightFork.signal();
 
             System.out
                     .println(Thread.currentThread().getName() + " is leaving the left fork");
-            rightFork.signal();
 
             // Last : go back to thinking...
             System.out
