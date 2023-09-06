@@ -6,7 +6,7 @@ public class MainB {
 
     public static class MyIncrementer implements Runnable {
 
-        public synchronized void run() {
+        public void run() {
             for (int i = 0; i < 1000000; i++) {
                 counter++;
             }

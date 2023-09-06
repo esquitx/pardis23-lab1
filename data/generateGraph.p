@@ -17,5 +17,5 @@ set ylabel 'ns'
 # using X:Y means plot using column X and column Y
 # Here column 1 is number of threads
 # Column 2 and 3 are average execution time for local machine and PDC resp.
-plot "results.dat" using 1:2 with lines title 'Local machine', \
-     "results.dat" using 1:3 with lines title 'PDC Dardel'
+plot "resultslocal.dat" using 1:2 with lines title 'Local machine', \
+     "resultsPDC.dat" using 1:2 with lines title 'PDC Dardel'
