@@ -2,15 +2,28 @@ package task2;
 
 public class MainB {
 
-    public static volatile int counter = 0;
+    private static volatile int counter = 0;
 
     public static class MyIncrementer implements Runnable {
 
-        public void run() {
-            for (int i = 0; i < 1000000; i++) {
+        synchronized public void incrementer() {
+            for (int i = 0; i < 1_000_000; i++) {
                 counter++;
             }
+        }
 
+        // Run the incrementer;
+        public void run() {
+
+            incrementer();
+
+            // synchronized (this) {
+
+            // for (int i = 0; i < 1_000_000; i++) {
+            // counter++;
+
+            // }
+            // }
         }
     }
 

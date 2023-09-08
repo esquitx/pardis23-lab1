@@ -17,8 +17,10 @@ public class MainA {
 
     public static void main(String[] args) {
 
+        // Number of threads spawned
         int n = 4;
 
+        // Spawn threads
         Thread[] threads = new Thread[n];
         MainA mainA = new MainA();
         MyThreadedCode ex = mainA.new MyThreadedCode();
@@ -27,9 +29,9 @@ public class MainA {
             threads[i].start();
         }
 
+        // Join threads
         for (int i = 0; i < n; i++) {
-
-            // Try except block to avoid InterruptedException with join method
+            // Try except block to handle sxceptions
             try {
                 threads[i].join();
             } catch (InterruptedException e) {
