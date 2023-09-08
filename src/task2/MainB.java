@@ -4,27 +4,20 @@ public class MainB {
 
     private static volatile int counter = 0;
 
-    public static class MyIncrementer implements Runnable {
+    public static class MyIncrementerThread extends Thread {
 
-        synchronized public void incrementer() {
+        public synchronized static void incrementer() {
+
             for (int i = 0; i < 1_000_000; i++) {
                 counter++;
             }
+
         }
 
-        // Run the incrementer;
         public void run() {
-
             incrementer();
-
-            // synchronized (this) {
-
-            // for (int i = 0; i < 1_000_000; i++) {
-            // counter++;
-
-            // }
-            // }
         }
+
     }
 
     public static void main(String[] args) {
@@ -34,7 +27,7 @@ public class MainB {
         // START JOB
         Thread[] threads = new Thread[n];
         for (int i = 0; i < n; i++) {
-            threads[i] = new Thread(new MyIncrementer());
+            threads[i] = new MyIncrementerThread();
             threads[i].start();
         }
 

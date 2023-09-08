@@ -9,14 +9,20 @@ public class MainC {
     private static volatile int counter = 0;
     private static boolean isPDC = false;
 
-    public static class MyIncrementer implements Runnable {
+    public static class MyIncrementerThread extends Thread {
 
-        public void run() {
-            for (int i = 0; i < 1000000; i++) {
+        public synchronized static void incrementer() {
+
+            for (int i = 0; i < 1_000_000; i++) {
                 counter++;
             }
 
         }
+
+        public void run() {
+            incrementer();
+        }
+
     }
 
     static long run_experiment(int n) {
@@ -26,7 +32,7 @@ public class MainC {
         // START JOB
         Thread[] threads = new Thread[n];
         for (int i = 0; i < n; i++) {
-            threads[i] = new Thread(new MyIncrementer());
+            threads[i] = new MyIncrementerThread();
             threads[i].start();
         }
 
@@ -66,7 +72,9 @@ public class MainC {
 
     public static void main(String[] args) {
 
-        isPDC = Boolean.parseBoolean(args[0]);
+        if (args.length > 0) {
+            isPDC = Boolean.parseBoolean(args[0]);
+        }
 
         int n = 1;
         int X = 10;
