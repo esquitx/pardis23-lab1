@@ -11,7 +11,7 @@ public class MainC {
 
     public static class MyIncrementerThread extends Thread {
 
-        public synchronized static void incrementer() {
+        synchronized static void incrementer() {
 
             for (int i = 0; i < 1_000_000; i++) {
                 counter++;

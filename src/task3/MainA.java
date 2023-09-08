@@ -7,14 +7,13 @@ public class MainA {
     public static void main(String[] args) {
 
         Thread incrementingThread = new Thread(() -> {
-            for (int i = 0; i < 1000000; i++) {
+            for (int i = 0; i < 1_000_000; i++) {
                 sharedInt++;
             }
         });
 
         Thread printingThread = new Thread(() -> {
             System.out.println(sharedInt);
-
         });
 
         incrementingThread.start();

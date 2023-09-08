@@ -2,37 +2,32 @@ package task3;
 
 public class MainD {
 
-    public static class TestB {
-        private int sharedInt = 0;
-        private boolean done = false;
-        private long incrementingTime = 0;
-        private long printingTime = 0;
+    static class TestB {
 
-        TestB() {
-            this.sharedInt = 0;
-        }
+        private volatile int sharedInt;
+        private volatile boolean done;
+        private long printingTime;
+        private long incrementingTime;
 
-        long runTest(boolean verbose) throws InterruptedException {
+        void test(boolean verbose) {
+
+            sharedInt = 0;
+            done = false;
 
             Thread incrementingThread = new Thread(() -> {
                 for (int i = 0; i < 1000000; i++) {
                     sharedInt++;
                 }
-                done = true;
                 incrementingTime = System.nanoTime();
-
-                return;
+                done = true;
             });
 
             Thread printingThread = new Thread(() -> {
 
                 while (!done) {
                 }
-                System.out.println("Test B prints : ");
-                System.out.println(sharedInt);
                 printingTime = System.nanoTime();
-
-                return;
+                System.out.println(sharedInt);
 
             });
 
@@ -40,143 +35,98 @@ public class MainD {
             printingThread.start();
 
             if (verbose) {
-                System.out.println("Ellapsed time : " + (printingTime - incrementingTime));
+                System.out.println("Ellapsed time: " + (printingTime - incrementingTime));
+                System.out.println("------------------------");
             }
-
-            return printingTime - incrementingTime;
         }
-
     }
 
-    public static class TestC {
+    static class TestC {
 
-        private int sharedInt;
+        private volatile int sharedInt = 0;
+        private boolean done = false;
         private Object lock = new Object();
-        private long incrementingTime;
         private long printingTime;
+        private long incrementingTime;
 
-        TestC() {
-            this.sharedInt = 0;
-        }
-
-        long runTest(boolean verbose) throws InterruptedException {
+        void test(boolean verbose) {
 
             Thread incrementingThread = new Thread(() -> {
+
                 synchronized (lock) {
-                    try {
-                        for (int i = 0; i < 1_000_000; i++) {
-                            this.sharedInt++;
-                        }
-                        incrementingTime = System.nanoTime();
-
-                    } finally {
-                        lock.notify();
-                        return;
-
+                    for (int i = 0; i < 1_000_000; i++) {
+                        sharedInt++;
                     }
+                    incrementingTime = System.nanoTime();
+                    done = true;
+                    lock.notify();
                 }
+
             });
 
             Thread printingThread = new Thread(() -> {
 
-                synchronized (lock) {
-                    try {
-                        lock.wait();
+                try {
+                    synchronized (lock) {
+                        while (!done) {
+                            lock.wait();
+                        }
                         printingTime = System.nanoTime();
-                        System.out.println("Test C prints : ");
                         System.out.println(sharedInt);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        return;
                     }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+
             });
 
             incrementingThread.start();
             printingThread.start();
 
             if (verbose) {
-                System.out.println("Ellapsed time : " + (printingTime - incrementingTime));
+                System.out.println("Ellapsed time: " + (printingTime - incrementingTime));
+                System.out.println("------------------------");
             }
 
-            return printingTime - incrementingTime;
-
         }
-
     }
 
     public static void main(String[] args) {
 
-        System.out.println("Starting tests for task 3b");
-        // WARMUP ROUNDS
-        System.out.println("Warming up for test B... ");
+        // TEST 3b
+        System.out.println("Starting tests for C...");
+
+        // Warmup
+        System.out.println("First a warm up");
+
         for (int i = 0; i < 10; i++) {
-
-            // Create
-            TestB testB = new TestB();
-
-            // Run (without outputs)
-            try {
-                testB.runTest(false);
-            } catch (InterruptedException e) {
-                return;
-            }
+            TestB test = new TestB();
+            test.test(false);
         }
 
-        // TESTING
-        System.out.println("Starting tests...");
+        // Tests
+        System.out.println("Now the tests for B...");
         for (int i = 0; i < 30; i++) {
-
-            System.out.println("Run " + (i + 1) + "....");
-            // Create
-            TestB testB = new TestB();
-
-            // Run (printing outputs)
-            try {
-                testB.runTest(true);
-            } catch (InterruptedException e) {
-                return;
-
-            }
-
-            System.out.println("--------------");
-
+            TestB test = new TestB();
+            test.test(true);
         }
 
-        System.out.println("");
-        System.out.println("Starting tests for task 3c");
-        // WARMUP ROUNDS
-        System.out.println("Warming up for test C... ");
+        // TEST 3c
+        System.out.println("Starting tests for C...");
+
+        // Warmup
+        System.out.println("First a warm up");
         for (int i = 0; i < 10; i++) {
-
-            // Create
-            TestC testC = new TestC();
-
-            // Run (without outputs)
-            try {
-                testC.runTest(false);
-            } catch (InterruptedException e) {
-                return;
-            }
+            TestC test = new TestC();
+            test.test(false);
         }
 
-        // TESTING
-        System.out.println("Starting tests...");
-        for (int i = 0; i < 30; i++) {
+        // Tests
+        System.out.println("Now the tests for C...");
 
-            System.out.println("Run " + (i + 1) + "....");
-            // Create
-            TestC testC = new TestC();
-
-            // Run (printing outputs)
-            try {
-                testC.runTest(true);
-            } catch (InterruptedException e) {
-                return;
-            }
-
-            System.out.println("--------------");
+        for (int i = 0; i < 10; i++) {
+            TestC test = new TestC();
+            test.test(false);
         }
 
     }
