@@ -40,6 +40,9 @@ public class Main {
                     System.out.println(i + " removed from buffer");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                } catch (ClosedException e) {
+                    System.out.println("Buffer is closed and empty!");
+                    return;
                 }
             }
 

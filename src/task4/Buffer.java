@@ -45,15 +45,20 @@ public class Buffer {
         }
     }
 
-    int remove() throws InterruptedException {
+    int remove() throws InterruptedException, ClosedException {
 
         lock.lock();
         try {
 
+            // Check if closed AND empty
+            if ((tail == head) && !isOpen) {
+                throw new ClosedException("The buffer is closed and empty");
+            }
             // Checks if empty, waits until it is not
             if (tail == head) {
                 notEmpty.await();
             }
+
             // When not empty, retrieve integer, update head
             int i = storage[head % storage.length];
             head++;
