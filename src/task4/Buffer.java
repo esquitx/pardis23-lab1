@@ -5,37 +5,38 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Condition;
 
 public class Buffer {
-    int head, tail;
-    boolean isOpen;
+    volatile int head, tail;
+    volatile boolean isOpen;
     ReentrantLock lock;
-    Condition notFull, notEmpty;
+    Condition notFull, notEmpty, notOpen;
     int[] storage;
 
     Buffer(int N) {
-        head = 0;
-        tail = 0;
-        isOpen = true;
-        lock = new ReentrantLock();
-        notFull = lock.newCondition();
-        notEmpty = lock.newCondition();
-        storage = (int[]) new int[N];
+        this.head = 0;
+        this.tail = 0;
+        this.lock = new ReentrantLock();
+        this.notFull = lock.newCondition();
+        this.notEmpty = lock.newCondition();
+        this.isOpen = true;
+        this.notOpen = lock.newCondition();
+        this.storage = (int[]) new int[N];
     }
 
     void add(int i) throws InterruptedException, ClosedException {
 
-        // Check if closed
-        if (!isOpen) {
-            throw new ClosedException();
-        }
-
         // Queing code
         lock.lock();
         try {
-
             // Checks if full, waits until it is not
-            if (tail - head == storage.length) {
+            while (tail - head == storage.length && isOpen) {
                 notFull.await();
             }
+            
+            // If closed before being full, throw exception
+            if (!isOpen) {
+                throw new ClosedException("Tried to add integer, but buffer is closed")
+            }
+            
             // When not full, add integer and update tail
             storage[tail % storage.length] = i;
             tail++;
@@ -50,13 +51,14 @@ public class Buffer {
         lock.lock();
         try {
 
-            // Check if closed AND empty
-            if ((tail == head) && !isOpen) {
-                throw new ClosedException("The buffer is closed and empty");
+            // Wait for an element to be added while open
+            while (tail == head && isOpen) {
+                notEmpty.wait();
             }
-            // Checks if empty, waits until it is not
-            if (tail == head) {
-                notEmpty.await();
+
+            // Check if closed before removing
+            if (!isOpen) {
+                throw new ClosedException("Buffer is closed!");
             }
 
             // When not empty, retrieve integer, update head
@@ -72,10 +74,21 @@ public class Buffer {
     void close() throws ClosedException {
 
         // Closes the storage
-        if (!isOpen) {
+        lock.lock();
+        try {
+
+            // If closed, throw exception
+            if (!isOpen) {
+                throw new ClosedException("Close attempted, but buffer already closed!");
+            }
+
+            // Close buffer and notify threads so they are not stuck waiting
             isOpen = false;
-        } else {
-            throw new ClosedException();
+            notFull.signalAll();
+            notEmpty.signalAll();
+
+        } finally {
+            lock.unlock();
         }
     }
 }
