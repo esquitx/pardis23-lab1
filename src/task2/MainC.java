@@ -50,7 +50,7 @@ public class MainC {
         return endTime - startTime;
     }
 
-    static void writer(boolean isPDC, int n, long mean) throws IOException {
+    static void writer(boolean isPDC, int n, double mean, double stdev) throws IOException {
 
         if (isPDC) {
             BufferedWriter writer = new BufferedWriter(new FileWriter("data/resultsPDC.dat", true));
@@ -63,6 +63,7 @@ public class MainC {
             BufferedWriter writer = new BufferedWriter(new FileWriter("data/resultslocal.dat", true));
             writer.write(n + " ");
             writer.write(mean + " ");
+            writer.write(stdev + " ");
             writer.newLine();
             writer.flush();
             writer.close();
@@ -76,13 +77,13 @@ public class MainC {
             isPDC = Boolean.parseBoolean(args[0]);
         }
 
-        int n = 1;
-        int X = 10;
-        int Y = 20;
-        long mean;
-        long st_dev;
+        int X = 25;
+        int Y = 50;
+        double mean;
+        double st_dev;
 
-        for (int k = 0; k < 6; k++) {
+        int[] threadArray = new int[] { 1, 2, 4, 8, 16, 32, 64 };
+        for (int n : threadArray) {
 
             // WARMUP PHASE
             for (int i = 0; i < X; i++) {
@@ -111,12 +112,12 @@ public class MainC {
             for (long res : results) {
                 sum += Math.pow(res - mean, 2);
             }
-            st_dev = sum / results.length;
+            st_dev = Math.sqrt(sum / results.length);
 
             // System.out.println("" + stdev);
 
             try {
-                writer(isPDC, n, mean);
+                writer(isPDC, n, mean, st_dev);
             } catch (IOException e) {
                 e.printStackTrace();
             }
