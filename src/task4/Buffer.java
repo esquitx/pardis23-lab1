@@ -31,12 +31,12 @@ public class Buffer {
             while (tail - head == storage.length && isOpen) {
                 notFull.await();
             }
-            
+
             // If closed before being full, throw exception
             if (!isOpen) {
-                throw new ClosedException("Tried to add integer, but buffer is closed")
+                throw new ClosedException("Tried to add integer, but buffer is closed");
             }
-            
+
             // When not full, add integer and update tail
             storage[tail % storage.length] = i;
             tail++;
