@@ -56,6 +56,7 @@ public class MainC {
             BufferedWriter writer = new BufferedWriter(new FileWriter("data/resultsPDC.dat", true));
             writer.write(n + " ");
             writer.write(mean + " ");
+            writer.write(stdev + " ");
             writer.newLine();
             writer.flush();
             writer.close();
@@ -92,27 +93,23 @@ public class MainC {
 
             // MEASUREMENT PHASE
             long[] results = new long[Y];
-            long total = 0;
+            double sum = 0.0;
             for (int i = 0; i < Y; i++) {
                 long result = run_experiment(n);
                 results[i] = result;
-                total = total + result;
+                sum += result;
             }
-
-            // Update value of n for future loop
-            n = 2 * n;
-
             // MEAN
-            mean = total / results.length;
+            mean = (sum / results.length);
 
             // System.out.println("" + mean);
 
             // ST DEV
-            long sum = 0;
+            double devSum = 0.0;
             for (long res : results) {
-                sum += Math.pow(res - mean, 2);
+                devSum += Math.pow(res - mean, 2);
             }
-            st_dev = Math.sqrt(sum / results.length);
+            st_dev = Math.sqrt(devSum / results.length);
 
             // System.out.println("" + stdev);
 
